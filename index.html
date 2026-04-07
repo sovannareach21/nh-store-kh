@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>វិក័យបត្រ NH Food - A4 & Photo Save</title>
+    <title>វិក័យបត្រ NH Food - Currency Switcher & A4</title>
     <link href="https://fonts.googleapis.com/css2?family=Khmer+OS+Battambang&family=Khmer+OS+Muol+Light&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -11,9 +11,11 @@
         body { font-family: 'Khmer OS Battambang', sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; }
         
         /* ផ្នែកបញ្ចូលទិន្នន័យ */
-        .input-container { background: white; padding: 20px; border-radius: 10px; max-width: 800px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .input-container { background: white; padding: 20px; border-radius: 10px; max-width: 850px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .currency-select { text-align: right; margin-bottom: 15px; background: #e3f2fd; padding: 10px; border-radius: 5px; }
+        
         .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .grid-form input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        .grid-form input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
         
         .item-entry { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; margin-bottom: 20px; align-items: flex-end; }
         .item-entry input { padding: 12px; border: 1px solid #ccc; border-radius: 5px; }
@@ -23,37 +25,44 @@
         table th { background: #f8f9fa; }
 
         .payment-box { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #fffde7; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #ffe082; }
-        .payment-box label { font-weight: bold; display: block; margin-bottom: 5px; }
         
         .btn-main { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; margin-top: 20px; }
         .btn-add { background: var(--success); color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; }
 
         /* ទម្រង់ A4 Preview */
-        #invoice-preview { display: none; background: white; width: 210mm; min-height: 297mm; padding: 15mm; margin: 20px auto; box-shadow: 0 0 20px rgba(0,0,0,0.2); box-sizing: border-box; position: relative; }
+        #invoice-preview { display: none; background: white; width: 210mm; min-height: 297mm; padding: 15mm; margin: 20px auto; box-shadow: 0 0 20px rgba(0,0,0,0.2); box-sizing: border-box; }
         
         @media screen and (max-width: 210mm) {
             #invoice-preview { width: 98%; height: auto; padding: 10px; margin: 5px auto; }
         }
 
-        .no-print-area { text-align: center; margin-top: 20px; }
+        .no-print-area { text-align: center; margin-top: 20px; padding-bottom: 30px; }
         .btn-action { padding: 10px 25px; border: none; border-radius: 5px; color: white; cursor: pointer; margin: 5px; font-size: 15px; }
 
         @media print {
             .no-print-area, .input-container { display: none !important; }
             body { background: white; padding: 0; }
-            #invoice-preview { box-shadow: none; margin: 0; width: 100%; padding: 10mm; }
+            #invoice-preview { box-shadow: none; margin: 0; width: 100%; padding: 10mm; display: block !important; }
         }
     </style>
 </head>
 <body>
 
 <div class="input-container" id="input-section">
-    <h2 style="text-align:center; font-family:'Khmer OS Muol Light'; color: #007bff;">បញ្ចូលទិន្នន័យវិក័យប័ត្រ</h2>
+    <h2 style="text-align:center; font-family:'Khmer OS Muol Light'; color: #007bff;">ប្រព័ន្ធគ្រប់គ្រងវិក័យប័ត្រ NH</h2>
     
+    <div class="currency-select">
+        <label><b>ជ្រើសរើសរូបិយប័ណ្ណ:</b></label>
+        <select id="currencySwitch" style="width: 150px; display: inline-block; margin-left: 10px;" onchange="updateUI()">
+            <option value="USD">ដុល្លារ ($)</option>
+            <option value="KHR">រៀល (៛)</option>
+        </select>
+    </div>
+
     <div class="grid-form">
         <div><label>លេខវិក័យប័ត្រ</label><input type="text" id="invNo" value="B0004259"></div>
         <div><label>ឈ្មោះអតិថិជន</label><input type="text" id="customerName" placeholder="..."></div>
-        <div><label>ទីតាំង/អាសយដ្ឋាន</label><input type="text" id="customerAddress" placeholder="..."></div>
+        <div><label>ទីតាំង</label><input type="text" id="customerAddress" placeholder="..."></div>
         <div><label>លេខទូរស័ព្ទ</label><input type="text" id="customerPhone" placeholder="..."></div>
     </div>
 
@@ -73,24 +82,31 @@
     <div class="item-entry">
         <input type="text" id="itemName" placeholder="ឈ្មោះទំនិញ">
         <input type="number" id="qty" placeholder="ចំនួន" value="1">
-        <input type="number" id="price" placeholder="តម្លៃ ($)" step="0.01">
+        <input type="number" id="price" placeholder="តម្លៃរាយ" step="0.01">
         <button class="btn-add" onclick="addItem()">បន្ថែម</button>
     </div>
 
     <table id="itemTable">
         <thead>
-            <tr><th>ល.រ</th><th>មុខទំនិញ</th><th>ចំនួន</th><th>តម្លៃ</th><th>សរុប</th><th>លុប</th></tr>
+            <tr>
+                <th>ល.រ</th>
+                <th>ឈ្មោះទំនិញ</th>
+                <th>ចំនួន</th>
+                <th id="th-price">តម្លៃ ($)</th>
+                <th id="th-total">សរុប ($)</th>
+                <th>លុប</th>
+            </tr>
         </thead>
         <tbody id="invoiceList"></tbody>
     </table>
 
     <div class="payment-box">
         <div>
-            <label>ប្រាក់កក់ ($)</label>
+            <label>ប្រាក់កក់ (<span class="cur-sym">$</span>)</label>
             <input type="number" id="deposit" value="0" oninput="calculateBalance()">
         </div>
         <div>
-            <label style="color:red;">ប្រាក់នៅខ្វះ ($)</label>
+            <label style="color:red;">ប្រាក់នៅខ្វះ (<span class="cur-sym">$</span>)</label>
             <input type="number" id="balance" value="0" readonly style="background:#eee; font-weight:bold; color:red;">
         </div>
     </div>
@@ -99,11 +115,11 @@
 </div>
 
 <div id="invoice-preview">
-    <div id="print-area" style="padding: 10px;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <div id="print-area" style="padding: 10px; background: white;">
+        <div style="display: flex; justify-content: space-between;">
             <div style="width: 60%;">
-                <h2 style="font-family:'Khmer OS Muol Light'; text-decoration: underline; margin:0; font-size: 22px;">វិក័យប័ត្រ | INVOICE</h2>
-                <div style="margin-top: 15px; font-size: 15px; line-height: 1.6;">
+                <h2 style="font-family:'Khmer OS Muol Light'; text-decoration: underline; margin:0;">វិក័យប័ត្រ | INVOICE</h2>
+                <div style="margin-top: 15px; font-size: 15px;">
                     អតិថិជន: <span id="p-name"></span><br>
                     លេខទូរស័ព្ទ: <span id="p-phone"></span><br>
                     ទីតាំង: <span id="p-addr"></span>
@@ -131,14 +147,10 @@
         </table>
 
         <div style="display: flex; justify-content: space-between; margin-top: 15px;">
-            <div style="width: 50%;">
-                <div id="p-shipping-ui" style="font-size: 13px;"></div>
-            </div>
-            <div style="width: 45%;">
-                <table style="width:100%; border-collapse: collapse; font-weight: bold; border: 1.5px solid #000;">
-                    <tbody id="p-summary"></tbody>
-                </table>
-            </div>
+            <div id="p-shipping-ui" style="font-size: 13px; width: 50%;"></div>
+            <table style="width: 45%; border-collapse: collapse; font-weight: bold; border: 1.5px solid #000;">
+                <tbody id="p-summary"></tbody>
+            </table>
         </div>
 
         <div style="display: flex; justify-content: space-around; margin-top: 60px; text-align: center; font-size: 14px;">
@@ -157,17 +169,31 @@
 
 <script>
     let items = [];
-    const exchangeRate = 4050;
+    const EX_RATE = 4050; // អត្រាប្តូរប្រាក់
+
+    function updateUI() {
+        const cur = document.getElementById('currencySwitch').value;
+        const sym = cur === 'USD' ? '$' : '៛';
+        
+        document.getElementById('th-price').innerText = `តម្លៃ (${sym})`;
+        document.getElementById('th-total').innerText = `សរុប (${sym})`;
+        document.querySelectorAll('.cur-sym').forEach(el => el.innerText = sym);
+        
+        renderInputTable();
+    }
 
     function addItem() {
         const name = document.getElementById('itemName').value;
         const q = parseFloat(document.getElementById('qty').value);
         const p = parseFloat(document.getElementById('price').value);
-        
-        if(!name || isNaN(q) || isNaN(p)) return alert("សូមបំពេញឈ្មោះទំនិញ និងតម្លៃ!");
+        const cur = document.getElementById('currencySwitch').value;
 
-        items.push({ name, q, p, total: q * p });
+        if(!name || isNaN(q) || isNaN(p)) return alert("សូមបំពេញទិន្នន័យ!");
+
+        // រក្សាទុកតម្លៃដើមដែលបញ្ចូល (ទោះជាដុល្លារ ឬរៀល)
+        items.push({ name, q, p, cur, total: q * p });
         renderInputTable();
+        
         document.getElementById('itemName').value = '';
         document.getElementById('price').value = '';
         document.getElementById('itemName').focus();
@@ -175,17 +201,41 @@
 
     function renderInputTable() {
         const tbody = document.getElementById('invoiceList');
+        const activeCur = document.getElementById('currencySwitch').value;
         tbody.innerHTML = '';
+
         items.forEach((it, i) => {
-            tbody.innerHTML += `<tr><td>${i+1}</td><td>${it.name}</td><td>${it.q}</td><td>$${it.p.toFixed(2)}</td><td>$${it.total.toFixed(2)}</td><td><button onclick="items.splice(${i},1);renderInputTable();" style="color:red;">X</button></td></tr>`;
+            const sym = activeCur === 'USD' ? '$' : '៛';
+            // បើកាលបញ្ចូលជារៀល តែចង់មើលជាដុល្លារ (ឬផ្ទុយមកវិញ) យើងត្រូវចែក/គុណអត្រាប្តូរប្រាក់
+            let displayPrice = it.p;
+            if(it.cur !== activeCur) {
+                displayPrice = (activeCur === 'USD') ? it.p / EX_RATE : it.p * EX_RATE;
+            }
+            let displayTotal = it.q * displayPrice;
+
+            tbody.innerHTML += `<tr>
+                <td>${i+1}</td>
+                <td>${it.name}</td>
+                <td>${it.q}</td>
+                <td>${displayPrice.toLocaleString()} ${sym}</td>
+                <td>${displayTotal.toLocaleString()} ${sym}</td>
+                <td><button onclick="items.splice(${i},1);renderInputTable();" style="color:red; border:none; background:none; cursor:pointer;">X</button></td>
+            </tr>`;
         });
         calculateBalance();
     }
 
     function calculateBalance() {
-        let total = items.reduce((s, i) => s + i.total, 0);
+        const cur = document.getElementById('currencySwitch').value;
+        let total = 0;
+        items.forEach(it => {
+            let p = it.p;
+            if(it.cur !== cur) p = (cur === 'USD') ? it.p / EX_RATE : it.p * EX_RATE;
+            total += (it.q * p);
+        });
+        
         let dep = parseFloat(document.getElementById('deposit').value) || 0;
-        document.getElementById('balance').value = (total - dep).toFixed(2);
+        document.getElementById('balance').value = (total - dep).toFixed(cur === 'USD' ? 2 : 0);
     }
 
     function generateInvoice() {
@@ -194,49 +244,59 @@
         document.getElementById('input-section').style.display = 'none';
         document.getElementById('invoice-preview').style.display = 'block';
 
-        // Fill Info
+        const cur = document.getElementById('currencySwitch').value;
+        const sym = cur === 'USD' ? '$' : '៛';
+
         document.getElementById('p-name').innerText = document.getElementById('customerName').value;
         document.getElementById('p-phone').innerText = document.getElementById('customerPhone').value;
         document.getElementById('p-addr').innerText = document.getElementById('customerAddress').value;
         document.getElementById('p-inv').innerText = document.getElementById('invNo').value;
         document.getElementById('p-date').innerText = new Date().toLocaleString('km-KH');
 
-        // Table Rows (15 Fixed Rows)
         let rowsHtml = '';
+        let grandTotal = 0;
         for(let i=0; i<15; i++) {
             const it = items[i] || {};
+            let p = '', t = '';
+            if(it.p) {
+                let dispP = it.p;
+                if(it.cur !== cur) dispP = (cur === 'USD') ? it.p / EX_RATE : it.p * EX_RATE;
+                let dispT = it.q * dispP;
+                grandTotal += dispT;
+                p = dispP.toLocaleString() + ' ' + sym;
+                t = dispT.toLocaleString() + ' ' + sym;
+            }
             rowsHtml += `<tr style="height:30px;">
                 <td style="border:1px solid #000; text-align:center;">${i+1}</td>
                 <td style="border:1px solid #000; padding-left:5px;">${it.name || ''}</td>
                 <td style="border:1px solid #000; text-align:center;">${it.q || ''}</td>
                 <td style="border:1px solid #000;"></td>
-                <td style="border:1px solid #000; text-align:center;">${it.p ? '$' + it.p.toFixed(2) : ''}</td>
-                <td style="border:1px solid #000; text-align:center;">${it.total ? '$' + it.total.toFixed(2) : ''}</td>
+                <td style="border:1px solid #000; text-align:center;">${p}</td>
+                <td style="border:1px solid #000; text-align:center;">${t}</td>
             </tr>`;
         }
         document.getElementById('p-table-rows').innerHTML = rowsHtml;
 
-        // Summary
-        let total = items.reduce((s, i) => s + i.total, 0);
         let dep = parseFloat(document.getElementById('deposit').value) || 0;
-        let bal = total - dep;
+        let bal = grandTotal - dep;
+
+        // បង្ហាញសរុបរួមទាំង ដុល្លារ និង រៀល
+        let altTotal = (cur === 'USD') ? (grandTotal * EX_RATE).toLocaleString() + ' ៛' : (grandTotal / EX_RATE).toFixed(2) + ' $';
 
         document.getElementById('p-summary').innerHTML = `
-            <tr><td style="border:1px solid #000; padding:6px;">សរុបរួម ($)</td><td align="right" style="border:1px solid #000; padding:6px;">$ ${total.toLocaleString()}</td></tr>
-            <tr><td style="border:1px solid #000; padding:6px;">សរុបរួម (៛)</td><td align="right" style="border:1px solid #000; padding:6px;">${(total * exchangeRate).toLocaleString()} ៛</td></tr>
-            <tr><td style="border:1px solid #000; padding:6px;">ប្រាក់កក់ ($)</td><td align="right" style="border:1px solid #000; padding:6px;">$ ${dep.toLocaleString()}</td></tr>
-            <tr><td style="border:1px solid #000; padding:6px; color:red;">ប្រាក់នៅខ្វះ ($)</td><td align="right" style="border:1px solid #000; padding:6px; color:red;">$ ${bal.toLocaleString()}</td></tr>
+            <tr><td style="border:1px solid #000; padding:6px;">សរុបរួម</td><td align="right" style="border:1px solid #000; padding:6px;">${grandTotal.toLocaleString()} ${sym}</td></tr>
+            <tr><td style="border:1px solid #000; padding:6px;">សរុបរួម (ប្តូរ)</td><td align="right" style="border:1px solid #000; padding:6px;">${altTotal}</td></tr>
+            <tr><td style="border:1px solid #000; padding:6px;">ប្រាក់កក់</td><td align="right" style="border:1px solid #000; padding:6px;">${dep.toLocaleString()} ${sym}</td></tr>
+            <tr><td style="border:1px solid #000; padding:6px; color:red;">ប្រាក់នៅខ្វះ</td><td align="right" style="border:1px solid #000; padding:6px; color:red;">${bal.toLocaleString()} ${sym}</td></tr>
         `;
 
-        // Shipping UI
         const ship = document.getElementById('shippingMethod').value;
         const shipOptions = ['ឡាន', 'វីរៈប៊ុនថាំ', 'Grab', 'J&T', 'កាពីតូល'];
         let sHtml = '<strong>សម្គាល់:</strong><br><div style="display:grid; grid-template-columns: 1fr 1fr; margin-top:5px;">';
         shipOptions.forEach(opt => {
             sHtml += `<span><span style="border:1px solid #000; width:12px; height:12px; display:inline-block; margin-right:5px; vertical-align:middle; ${ship===opt?'background:black;':''}"></span> ${opt}</span>`;
         });
-        sHtml += '</div>';
-        document.getElementById('p-shipping-ui').innerHTML = sHtml;
+        document.getElementById('p-shipping-ui').innerHTML = sHtml + '</div>';
     }
 
     function saveImage() {
