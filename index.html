@@ -2,7 +2,7 @@
 <html lang="km">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>វិក័យបត្រ NH Food - Currency Switcher & A4</title>
     <link href="https://fonts.googleapis.com/css2?family=Khmer+OS+Battambang&family=Khmer+OS+Muol+Light&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -31,6 +31,12 @@
 
         /* ទម្រង់ A4 Preview */
         #invoice-preview { display: none; background: white; width: 210mm; min-height: 297mm; padding: 15mm; margin: 20px auto; box-shadow: 0 0 20px rgba(0,0,0,0.2); box-sizing: border-box; }
+
+        /* Bigger, clearer text inside the printed invoice table */
+        #print-area table th { font-size: 18px; font-weight: bold; padding: 10px 6px; }
+        #print-area table td { font-size: 18px; padding: 8px 6px; }
+        #p-table-rows td { font-size: 19px; }
+        #p-summary td { font-size: 18px; }
         
         @media screen and (max-width: 210mm) {
             #invoice-preview { width: 98%; height: auto; padding: 10px; margin: 5px auto; }
@@ -119,22 +125,22 @@
         <div style="display: flex; justify-content: space-between;">
             <div style="width: 60%;">
                 <h2 style="font-family:'Khmer OS Muol Light'; text-decoration: underline; margin:0;">វិក័យប័ត្រ | INVOICE</h2>
-                <div style="margin-top: 15px; font-size: 15px;">
+                <div style="margin-top: 15px; font-size: 17px;">
                     អតិថិជន: <span id="p-name"></span><br>
                     លេខទូរស័ព្ទ: <span id="p-phone"></span><br>
                     ទីតាំង: <span id="p-addr"></span>
                 </div>
             </div>
-            <div style="text-align: right; font-size: 14px;">
-                <div style="color:red; font-weight:bold; font-size: 16px;">Invoice No: <span id="p-inv"></span></div>
+            <div style="text-align: right; font-size: 17px;">
+                <div style="color:red; font-weight:bold; font-size: 17px;">Invoice No: <span id="p-inv"></span></div>
                 <div style="margin: 5px 0;">ថ្ងៃលក់: <span id="p-date"></span></div>
-                <div>អ្នកលក់: <b style="font-size: 15px;">NH បោះដុំអាហារ</b></div>
+                <div>អ្នកលក់: <b style="font-size: 17px;">NH បោះដុំអាហារ</b></div>
             </div>
         </div>
 
         <table style="width:100%; border-collapse: collapse; margin-top: 20px; border: 1.5px solid #000;">
             <thead>
-                <tr style="background:#eee; height: 35px;">
+                <tr style="background:#eee; height: 40px;">
                     <th style="border:1px solid #000; text-align:center;">ល.រ</th>
                     <th style="border:1px solid #000; text-align:center;">រាយមុខទំនិញ</th>
                     <th style="border:1px solid #000; text-align:center;">ចំនួន</th>
@@ -143,17 +149,19 @@
                     <th style="border:1px solid #000; text-align:center;">តម្លៃសរុប</th>
                 </tr>
             </thead>
-            <tbody id="p-table-rows"></tbody>
+            <tbody id="p-table-rows" style="text-align:center;"></tbody>
+                
+            </tbody>
         </table>
 
         <div style="display: flex; justify-content: space-between; margin-top: 15px;">
-            <div id="p-shipping-ui" style="font-size: 13px; width: 50%;"></div>
+            <div id="p-shipping-ui" style="font-size: 20px; width: 50%;"></div>
             <table style="width: 45%; border-collapse: collapse; font-weight: bold; border: 1.5px solid #000;">
                 <tbody id="p-summary"></tbody>
             </table>
         </div>
 
-        <div style="display: flex; justify-content: space-around; margin-top: 60px; text-align: center; font-size: 14px;">
+        <div style="display: flex; justify-content: space-around; margin-top: 60px; text-align: center; font-size: 15px;">
             <div>___________________<br>អ្នកទទួល</div>
             <div>___________________<br>អ្នកដឹក</div>
             <div>___________________<br>អ្នកចេញវ៉ាន់</div>
@@ -266,13 +274,13 @@
                 p = dispP.toLocaleString() + ' ' + sym;
                 t = dispT.toLocaleString() + ' ' + sym;
             }
-            rowsHtml += `<tr style="height:30px;">
-                <td style="border:1px solid #000; text-align:center;">${i+1}</td>
-                <td style="border:1px solid #000; padding-left:5px;">${it.name || ''}</td>
-                <td style="border:1px solid #000; text-align:center;">${it.q || ''}</td>
+            rowsHtml += `<tr style="height:36px;">
+                <td style="border:1px solid #000; text-align:center; font-size:18px;">${i+1}</td>
+                <td style="border:1px solid #000; padding-left:8px; text-align:left; font-size:19px; font-weight:600;">${it.name || ''}</td>
+                <td style="border:1px solid #000; text-align:center; font-size:18px;">${it.q || ''}</td>
                 <td style="border:1px solid #000;"></td>
-                <td style="border:1px solid #000; text-align:center;">${p}</td>
-                <td style="border:1px solid #000; text-align:center;">${t}</td>
+                <td style="border:1px solid #000; text-align:center; font-size:18px; font-weight:600;">${p}</td>
+                <td style="border:1px solid #000; text-align:center; font-size:19px; font-weight:bold;">${t}</td>
             </tr>`;
         }
         document.getElementById('p-table-rows').innerHTML = rowsHtml;
@@ -284,10 +292,10 @@
         let altTotal = (cur === 'USD') ? (grandTotal * EX_RATE).toLocaleString() + ' ៛' : (grandTotal / EX_RATE).toFixed(2) + ' $';
 
         document.getElementById('p-summary').innerHTML = `
-            <tr><td style="border:1px solid #000; padding:6px;">សរុបរួម</td><td align="right" style="border:1px solid #000; padding:6px;">${grandTotal.toLocaleString()} ${sym}</td></tr>
-            <tr><td style="border:1px solid #000; padding:6px;">សរុបរួម (ប្តូរ)</td><td align="right" style="border:1px solid #000; padding:6px;">${altTotal}</td></tr>
-            <tr><td style="border:1px solid #000; padding:6px;">ប្រាក់កក់</td><td align="right" style="border:1px solid #000; padding:6px;">${dep.toLocaleString()} ${sym}</td></tr>
-            <tr><td style="border:1px solid #000; padding:6px; color:red;">ប្រាក់នៅខ្វះ</td><td align="right" style="border:1px solid #000; padding:6px; color:red;">${bal.toLocaleString()} ${sym}</td></tr>
+            <tr><td style="border:1px solid #000; padding:8px; font-size:18px;">សរុបរួម</td><td align="right" style="border:1px solid #000; padding:8px; font-size:18px;">${grandTotal.toLocaleString()} ${sym}</td></tr>
+            <tr><td style="border:1px solid #000; padding:8px; font-size:18px;">សរុបរួម (ប្តូរ)</td><td align="right" style="border:1px solid #000; padding:8px; font-size:18px;">${altTotal}</td></tr>
+            <tr><td style="border:1px solid #000; padding:8px; font-size:18px;">ប្រាក់កក់</td><td align="right" style="border:1px solid #000; padding:8px; font-size:18px;">${dep.toLocaleString()} ${sym}</td></tr>
+            <tr><td style="border:1px solid #000; padding:8px; font-size:18px; color:red;">ប្រាក់នៅខ្វះ</td><td align="right" style="border:1px solid #000; padding:8px; font-size:18px; color:red;">${bal.toLocaleString()} ${sym}</td></tr>
         `;
 
         const ship = document.getElementById('shippingMethod').value;
